@@ -1,0 +1,15 @@
+{
+  "name": "cachet-monitor",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "codes@samuel-philipp.de",
+  "dependencies": {
+    "abort-controller": "^3.0.0",
+    "libnmap": "^0.4.19",
+    "node-cron": "^2.0.3",
+    "node-fetch": "^2.6.0"
+  }
+}
