@@ -9,7 +9,9 @@ const nmap = require('libnmap');
 let cachePath = path.resolve("./data/cache.json");
 const cache = fs.existsSync(cachePath) ? JSON.parse(fs.readFileSync(cachePath, {encoding: "utf8"})) : {};
 // delete cache file to remove orphaned cache values
-fs.unlinkSync(cachePath);
+if (fs.existsSync(cachePath)) {
+    fs.unlinkSync(cachePath);
+}
 
 process.on('SIGINT', () => {
     fs.writeFileSync(cachePath, JSON.stringify(cache), {encoding: "utf8"});
