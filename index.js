@@ -120,7 +120,7 @@ const check = async () => {
     for (const service of config.services) {
         const oldStatus = cache[service.id];
         const newStatus = await checkService(service, oldStatus);
-        if (oldStatus.status !== newStatus.status) {
+        if (!oldStatus || oldStatus.status !== newStatus.status) {
             console.log(service.id + ' status changed: ' + newStatus.status);
             await pushStatusToCachet(service.id, newStatus.status);
             cache[service.id] = newStatus;
