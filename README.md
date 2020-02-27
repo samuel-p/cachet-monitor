@@ -41,7 +41,7 @@ Example:
 You can use the docker image [`samuelph/cachet-monitor`](https://hub.docker.com/r/samuelph/cachet-monitor) and mount a volume to `/monitor/data` to persist cache and config:
 
 ```bash
-docker run -v /your/path//monitor/data:/monitor/data samuelph/cachet-monitor
+docker run -v /your/path/monitor/data:/monitor/data samuelph/cachet-monitor
 ```
 
 You also can use it in `docker-compose.yml`:
@@ -52,7 +52,7 @@ services:
     image: samuelph/cachet-monitor
     restart: always
     volumes:
-      - /home/tux/status/monitor:/monitor/data
+      - /your/path/monitor:/monitor/data
 ```
 
 ## Run from source
