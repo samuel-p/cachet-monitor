@@ -2,7 +2,7 @@
 
 [![Build Status](https://ci.sp-codes.de/api/badges/samuel-p/cachet-monitor/status.svg)](https://ci.sp-codes.de/samuel-p/cachet-monitor) ![Docker Pulls](https://img.shields.io/docker/pulls/samuelph/cachet-monitor)
 
-Simple monitor to watch URLs (`HTTP`) or ports (`TCP`, `UDP`) and update Cachet status.
+Simple monitor to watch URLs (`HTTP`) or ports (`TCP`, `UDP`) and update [Cachet](https://cachethq.io/) status.
 
 ## Configuration
 
