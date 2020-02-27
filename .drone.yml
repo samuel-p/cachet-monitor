@@ -1,0 +1,12 @@
+kind: pipeline
+name: default
+
+steps:
+  - name: docker
+    image: plugins/docker
+    settings:
+      repo: samuelph/cachet-monitor
+      username:
+        from_secret: USERNAME
+      password:
+        from_secret: PASSWORD

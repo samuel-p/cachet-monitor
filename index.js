@@ -1,16 +1,18 @@
 const config = require('./data/config');
 const fs = require('fs');
+const path = require('path');
 const cron = require('node-cron');
 const fetch = require('node-fetch');
 const abort = require('abort-controller');
 const nmap = require('libnmap');
 
-const cache = fs.existsSync("data/cache.json") ? JSON.parse(fs.readFileSync("data/cache.json", {encoding: "utf8"})) : {};
+let cachePath = path.resolve("./data/cache.json");
+const cache = fs.existsSync(cachePath) ? JSON.parse(fs.readFileSync(cachePath, {encoding: "utf8"})) : {};
 // delete cache file to remove orphaned cache values
-fs.unlinkSync("data/cache.json");
+fs.unlinkSync(cachePath);
 
 process.on('SIGINT', () => {
-    fs.writeFileSync("data/cache.json", JSON.stringify(cache), {encoding: "utf8"});
+    fs.writeFileSync(cachePath, JSON.stringify(cache), {encoding: "utf8"});
     process.exit(0);
 });
 
