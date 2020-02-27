@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node index.js"
   },
-  "author": "codes@samuel-philipp.de",
+  "author": "mail@sp-codes.de",
   "dependencies": {
     "abort-controller": "^3.0.0",
     "libnmap": "^0.4.19",

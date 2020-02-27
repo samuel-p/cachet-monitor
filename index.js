@@ -1,14 +1,14 @@
-const config = require('./config');
+const config = require('./data/config');
 const fs = require('fs');
 const cron = require('node-cron');
 const fetch = require('node-fetch');
 const abort = require('abort-controller');
 const nmap = require('libnmap');
 
-const cache = fs.existsSync("cache.json") ? JSON.parse(fs.readFileSync("cache.json", {encoding: "utf8"})) : {};
+const cache = fs.existsSync("data/cache.json") ? JSON.parse(fs.readFileSync("data/cache.json", {encoding: "utf8"})) : {};
 
 process.on('SIGINT', () => {
-    fs.writeFileSync("cache.json", JSON.stringify(cache), {encoding: "utf8"});
+    fs.writeFileSync("data/cache.json", JSON.stringify(cache), {encoding: "utf8"});
     process.exit(0);
 });
 
