@@ -11,4 +11,4 @@ RUN mkdir -p /monitor/data \
   && npm install \
   && apk del git
 
-CMD npm run start
+CMD ["node", "index.js"]

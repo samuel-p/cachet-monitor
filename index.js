@@ -6,6 +6,8 @@ const abort = require('abort-controller');
 const nmap = require('libnmap');
 
 const cache = fs.existsSync("data/cache.json") ? JSON.parse(fs.readFileSync("data/cache.json", {encoding: "utf8"})) : {};
+// delete cache file to remove orphaned cache values
+fs.unlinkSync("data/cache.json");
 
 process.on('SIGINT', () => {
     fs.writeFileSync("data/cache.json", JSON.stringify(cache), {encoding: "utf8"});
@@ -85,7 +87,7 @@ async function checkStatus(service) {
 const checkService = async (service, oldStatus) => {
     const newStatus = await checkStatus(service);
     newStatus.changed = new Date().getTime();
-    if (newStatus.status === "OFFLINE" && ["OFFLINE", "INCIDENT"].includes(oldStatus.status) &&
+    if (newStatus.status === "OFFLINE" && oldStatus && ["OFFLINE", "INCIDENT"].includes(oldStatus.status) &&
         oldStatus.changed + config.offlineTimeUntilMajor * 1000 < newStatus.changed) {
         newStatus.status = "INCIDENT";
     }
