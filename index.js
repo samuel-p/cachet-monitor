@@ -25,21 +25,28 @@ const cachetStatusMapping = {
     "INCIDENT": 4
 };
 
-const checkHttp = async (url, performanceTimeout, requestTimeout = 60) => {
+config.cron = config.cron || "* * * * *";
+config.defaults = config.defaults || {};
+config.defaults.retry = config.defaults.retry || 0;
+config.defaults.waitUntilRetry = config.defaults.waitUntilRetry || 5;
+config.defaults.performanceTimeout = config.defaults.performanceTimeout || 1;
+config.defaults.requestTimeout = config.defaults.requestTimeout || 30;
+config.defaults.offlineTimeUntilMajor = config.defaults.offlineTimeUntilMajor || 300;
+
+const checkHttp = async (url, performanceTimeout, requestTimeout) => {
     const controller = new abort.AbortController();
-    const timeout = setTimeout(() => controller.abort(), requestTimeout);
+    const timeout = setTimeout(() => controller.abort(), requestTimeout * 1000);
     try {
         const start = new Date().getTime();
         const response = await fetch(url, {signal: controller.signal});
         const stop = new Date().getTime();
         if (response.ok) {
-            if (stop - start > performanceTimeout) {
+            if (stop - start > performanceTimeout * 1000) {
                 return {status: "SLOW", message: response.statusText};
             }
             return {status: "ONLINE", message: response.statusText};
-        } else {
-            return {status: "OFFLINE", message: response.statusText};
         }
+        return {status: "OFFLINE", message: response.statusText};
     } catch (e) {
         return {status: "OFFLINE", message: e.message};
     } finally {
@@ -47,12 +54,12 @@ const checkHttp = async (url, performanceTimeout, requestTimeout = 60) => {
     }
 };
 
-const checkPort = async (host, port, type, performanceTimeout, requestTimeout = 60) => {
+const checkPort = async (host, port, type, performanceTimeout, requestTimeout) => {
     return await new Promise(resolve => {
         nmap.scan({
             range: [host],
             ports: port.toString(),
-            timeout: requestTimeout / 1000,
+            timeout: requestTimeout,
             udp: type === 'udp'
         }, (error, report) => {
             if (error) {
@@ -62,7 +69,7 @@ const checkPort = async (host, port, type, performanceTimeout, requestTimeout = 
                 const time = parseInt(result.item.endtime) - parseInt(result.item.starttime);
                 const status = result.ports[0].port[0].state[0].item;
                 if (status.state.includes('open')) {
-                    if (time > performanceTimeout) {
+                    if (time > performanceTimeout * 1000) {
                         resolve({status: "SLOW", message: status.state});
                     } else {
                         resolve({status: "ONLINE", message: status.state});
@@ -76,24 +83,38 @@ const checkPort = async (host, port, type, performanceTimeout, requestTimeout = 
 };
 
 async function checkStatus(service) {
+    const performanceTimeout = service.performanceTimeout || config.defaults.performanceTimeout;
+    const requestTimeout = service.requestTimeout || config.defaults.requestTimeout;
     switch (service.type) {
         case 'HTTP':
-            return await checkHttp(service.url, service.timeout * 1000, config.timeout);
+            return await checkHttp(service.url, performanceTimeout, requestTimeout);
         case 'TCP':
-            return await checkPort(service.host, service.port, 'tcp', service.timeout * 1000, config.timeout);
+            return await checkPort(service.host, service.port, 'tcp', performanceTimeout, requestTimeout);
         case 'UDP':
-            return await checkPort(service.host, service.port, 'udp', service.timeout * 1000, config.timeout);
+            return await checkPort(service.host, service.port, 'udp', performanceTimeout, requestTimeout);
         default:
             throw new Error('unsupported type "' + type + '"')
     }
 }
 
 const checkService = async (service, oldStatus) => {
-    const newStatus = await checkStatus(service);
-    newStatus.changed = new Date().getTime();
-    if (newStatus.status === "OFFLINE" && oldStatus && ["OFFLINE", "INCIDENT"].includes(oldStatus.status) &&
-        oldStatus.changed + config.offlineTimeUntilMajor * 1000 < newStatus.changed) {
-        newStatus.status = "INCIDENT";
+    const retry = service.retry || config.defaults.retry;
+    const waitUntilRetry = (service.waitUntilRetry || config.defaults.waitUntilRetry) * 1000;
+    let newStatus;
+    for (let i = retry; i >= 0; i--) {
+        newStatus = await checkStatus(service);
+        console.log(i);
+        newStatus.changed = new Date().getTime();
+        if (newStatus.status !== "OFFLINE") {
+            return newStatus;
+        }
+        const offlineTimeUntilMajor = (service.offlineTimeUntilMajor || config.defaults.offlineTimeUntilMajor) * 1000;
+        if (oldStatus && ["OFFLINE", "INCIDENT"].includes(oldStatus.status) && oldStatus.changed + offlineTimeUntilMajor < newStatus.changed) {
+            newStatus.status = "INCIDENT";
+        }
+        if (i >= 0 && waitUntilRetry > 0) {
+            await new Promise(r => setTimeout(r, waitUntilRetry));
+        }
     }
     return newStatus;
 };

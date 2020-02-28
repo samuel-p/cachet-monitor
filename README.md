@@ -6,34 +6,54 @@ Simple monitor to watch URLs (`HTTP`) or ports (`TCP`, `UDP`) and update [Cachet
 
 ## Configuration
 
-cachet-monitor can monitor a list of services. Therefore it requires to setup all services in `./data/config.json`. __The id of each service has to match the cachet component id you want to update!__ You also can specify a custom timeout in seconds for each service. If the service timeout is passed the status will be `SLOW` (Cachet `Performance Issues`).
+cachet-monitor can monitor a list of services. Therefore it requires to setup all services in `./data/config.json`. __The id of each service has to match the cachet component id you want to update!__ Each service needs the following attributes (additionally to `id` and `type`):
 
-You also need to specify the interval (`cron`) your services should be checked. You can use the cron syntax from [`node-cron`](https://www.npmjs.com/package/node-cron). You also have to set `offlineTimeUntilMajor` which is the offline time in seconds until the state of an offline service turns from partial to major outage. Finally you need to provide the information to your cachet instance (`api` and `token`). The "global" `timeout` value will be used as a final request timeout for each service. If the check request does not complete in this time the service will be marked as offline.
+* type `HTTP`
+  * `url`
+* type `TCP` or `UDP`
+  * `host`
+  * `port`
+
+Optionally you can add the following options to each service, or change the default values globally:
+
+* `retry` - number how often the check should be retried if the service is offline (default value `0`)
+* `waitUntilRetry` - number of seconds the retry should be delayed (default value `5`)
+* `performanceTimeout` - time in seconds in which the request has to be completed, otherwise the status will be `SLOW` (Cachet `Performance Issues`) (default value `1`)
+* `requestTimeout` - time in seconds in which the request has to be completed, otherwise the status will be offline (default value `30`)
+* `offlineTimeUntilMajor` - time in seconds a service has to be offline until it turns from partial to major outage (default value `300`)
+
+You can specify the interval (`cron`) your services should be checked. You can use the cron syntax from [`node-cron`](https://www.npmjs.com/package/node-cron). Finally you need to provide the information to your cachet instance (`api` and `token`).
+
+To change the default values globally you can set the in the `defaults` object.
 
 Example:
 
 ```json
 {
+	"cron": "0 * * * * *",
+	"api": "https://<cachet-url>/api/v1",
+	"token": "<user-token>"
 	"services": [
 		{
 			"id": 1,
 			"type": "HTTP",
 			"url": "https://sp-codes.de",
-			"timeout": 60
+			"performanceTimeout": 1
 		},
 		{
 			"id": 2,
 			"type": "TCP",
 			"host": "sp-codes.de",
-			"port": 443,
-			"timeout": 60
+			"port": 443
 		}
 	],
-	"cron": "0 * * * * *",
-    "timeout": 30,
-	"offlineTimeUntilMajor": 300,
-	"api": "https://<cachet-url>/api/v1",
-	"token": "<user-token>"
+	"defaults": {
+		"retry": 1,
+		"waitUntilRetry": 5,
+		"performanceTimeout": 2,
+		"requestTimeout": 10,
+		"offlineTimeUntilMajor": 600
+	}
 }
 ```
 
