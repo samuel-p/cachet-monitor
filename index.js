@@ -25,7 +25,7 @@ const cachetStatusMapping = {
     "INCIDENT": 4
 };
 
-const checkHttp = async (url, performanceTimeout, requestTimeout) => {
+const checkHttp = async (url, performanceTimeout, requestTimeout = 60) => {
     const controller = new abort.AbortController();
     const timeout = setTimeout(() => controller.abort(), requestTimeout);
     try {
@@ -47,7 +47,7 @@ const checkHttp = async (url, performanceTimeout, requestTimeout) => {
     }
 };
 
-const checkPort = async (host, port, type, performanceTimeout, requestTimeout) => {
+const checkPort = async (host, port, type, performanceTimeout, requestTimeout = 60) => {
     return await new Promise(resolve => {
         nmap.scan({
             range: [host],
@@ -78,11 +78,11 @@ const checkPort = async (host, port, type, performanceTimeout, requestTimeout) =
 async function checkStatus(service) {
     switch (service.type) {
         case 'HTTP':
-            return await checkHttp(service.url, service.timeout * 1000, service.timeout * 2000);
+            return await checkHttp(service.url, service.timeout * 1000, config.timeout);
         case 'TCP':
-            return await checkPort(service.host, service.port, 'tcp', service.timeout * 1000, service.timeout * 2000);
+            return await checkPort(service.host, service.port, 'tcp', service.timeout * 1000, config.timeout);
         case 'UDP':
-            return await checkPort(service.host, service.port, 'udp', service.timeout * 1000, service.timeout * 2000);
+            return await checkPort(service.host, service.port, 'udp', service.timeout * 1000, config.timeout);
         default:
             throw new Error('unsupported type "' + type + '"')
     }
@@ -123,7 +123,7 @@ const pushStatusToCachet = async (id, status) => {
 };
 
 const check = async () => {
-    for (const service of config.services) {
+    await Promise.all(config.services.map(async service => {
         const oldStatus = cache[service.id];
         const newStatus = await checkService(service, oldStatus);
         if (!oldStatus || oldStatus.status !== newStatus.status) {
@@ -131,7 +131,7 @@ const check = async () => {
             await pushStatusToCachet(service.id, newStatus.status);
             cache[service.id] = newStatus;
         }
-    }
+    }));
 };
 
 cron.schedule(config.cron, async () => await check(), {});

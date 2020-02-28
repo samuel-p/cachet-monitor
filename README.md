@@ -6,9 +6,9 @@ Simple monitor to watch URLs (`HTTP`) or ports (`TCP`, `UDP`) and update [Cachet
 
 ## Configuration
 
-cachet-monitor can monitor a list of services. Therefore it requires to setup all services in `./data/config.json`. __The id of each service has to match the cachet component id you want to update!__ You also can specify a custom timeout in seconds for each service.
+cachet-monitor can monitor a list of services. Therefore it requires to setup all services in `./data/config.json`. __The id of each service has to match the cachet component id you want to update!__ You also can specify a custom timeout in seconds for each service. If the service timeout is passed the status will be `SLOW` (Cachet `Performance Issues`).
 
-You also need to specify the interval (`cron`) your services should be checked. You can use the cron syntax from [`node-cron`](https://www.npmjs.com/package/node-cron). You also have to set `offlineTimeUntilMajor` which is the offline time in seconds until the state of an offline service turns from partial to major outage. Finally you need to provide the information to your cachet instance (`api` and `token`).
+You also need to specify the interval (`cron`) your services should be checked. You can use the cron syntax from [`node-cron`](https://www.npmjs.com/package/node-cron). You also have to set `offlineTimeUntilMajor` which is the offline time in seconds until the state of an offline service turns from partial to major outage. Finally you need to provide the information to your cachet instance (`api` and `token`). The "global" `timeout` value will be used as a final request timeout for each service. If the check request does not complete in this time the service will be marked as offline.
 
 Example:
 
@@ -30,6 +30,7 @@ Example:
 		}
 	],
 	"cron": "0 * * * * *",
+    "timeout": 30,
 	"offlineTimeUntilMajor": 300,
 	"api": "https://<cachet-url>/api/v1",
 	"token": "<user-token>"
