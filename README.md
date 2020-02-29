@@ -1,6 +1,6 @@
 # [cachet-monitor](https://git.sp-codes.de/samuel-p/cachet-monitor)
 
-[![Build Status](https://ci.sp-codes.de/api/badges/samuel-p/cachet-monitor/status.svg)](https://ci.sp-codes.de/samuel-p/cachet-monitor) ![Docker Pulls](https://img.shields.io/docker/pulls/samuelph/cachet-monitor)
+[![Build Status](https://ci.sp-codes.de/api/badges/samuel-p/cachet-monitor/status.svg)](https://ci.sp-codes.de/samuel-p/cachet-monitor) [![License](https://img.shields.io/badge/license-GPL--3.0-orange)](#license) [![Docker Pulls](https://img.shields.io/docker/pulls/samuelph/cachet-monitor)](https://hub.docker.com/r/samuelph/cachet-monitor)
 
 Simple monitor to watch URLs (`HTTP`) or ports (`TCP`, `UDP`) and update [Cachet](https://cachethq.io/) status.
 
@@ -32,7 +32,7 @@ Example:
 {
 	"cron": "0 * * * * *",
 	"api": "https://<cachet-url>/api/v1",
-	"token": "<user-token>"
+	"token": "<user-token>",
 	"services": [
 		{
 			"id": 1,
@@ -95,3 +95,9 @@ services:
    ```bash
    npm run start
    ```
+
+## License
+
+[![GNU GPLv3 Image](https://www.gnu.org/graphics/gplv3-127x51.png)](https://www.gnu.org/licenses/gpl-3.0)
+
+cachet-monitor is Free Software: It is licensed under GNU GPL v3 (See [LICENSE](LICENSE) for more information).

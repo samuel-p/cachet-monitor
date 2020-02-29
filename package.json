@@ -6,6 +6,7 @@
     "start": "node index.js"
   },
   "author": "mail@sp-codes.de",
+  "license": "GPL-3.0",
   "dependencies": {
     "abort-controller": "^3.0.0",
     "libnmap": "^0.4.19",
