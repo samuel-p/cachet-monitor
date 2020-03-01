@@ -103,9 +103,8 @@ const checkService = async (service, oldStatus) => {
     let newStatus;
     for (let i = retry; i >= 0; i--) {
         newStatus = await checkStatus(service);
-        console.log(i);
         newStatus.changed = new Date().getTime();
-        if (newStatus.status !== "OFFLINE") {
+        if (newStatus.status === "ONLINE") {
             return newStatus;
         }
         const offlineTimeUntilMajor = (service.offlineTimeUntilMajor || config.defaults.offlineTimeUntilMajor) * 1000;
