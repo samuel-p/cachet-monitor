@@ -108,7 +108,7 @@ const checkService = async (service, oldStatus) => {
             return newStatus;
         }
         const offlineTimeUntilMajor = (service.offlineTimeUntilMajor || config.defaults.offlineTimeUntilMajor) * 1000;
-        if (oldStatus && ["OFFLINE", "INCIDENT"].includes(oldStatus.status) && oldStatus.changed + offlineTimeUntilMajor < newStatus.changed) {
+        if (newStatus === "OFFLINE" && oldStatus && (oldStatus.status === "INCIDENT" || oldStatus.status === "OFFLINE" && oldStatus.changed + offlineTimeUntilMajor < newStatus.changed)) {
             newStatus.status = "INCIDENT";
         }
         if (i >= 0 && waitUntilRetry > 0) {
@@ -155,4 +155,3 @@ const check = async () => {
 };
 
 cron.schedule(config.cron, async () => await check(), {});
-
