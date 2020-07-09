@@ -95,6 +95,8 @@ services:
    ```bash
    npm run start
    ```
+   
+   __Important: If you want `UDP` checks, you need to run it as `root`, because `nmap` allows `UDP` scans only for `root`.__
 
 ## License
 

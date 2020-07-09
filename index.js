@@ -57,26 +57,32 @@ const checkHttp = async (url, performanceTimeout, requestTimeout) => {
 const checkPort = async (host, port, type, performanceTimeout, requestTimeout) => {
     return await new Promise(resolve => {
         nmap.scan({
+            flags: ['-Pn'],
             range: [host],
             ports: port.toString(),
             timeout: requestTimeout,
             udp: type === 'udp'
         }, (error, report) => {
-            if (error) {
-                resolve({status: "OFFLINE", message: error});
-            } else {
-                const result = report[host].host[0];
-                const time = parseInt(result.item.endtime) - parseInt(result.item.starttime);
-                const status = result.ports[0].port[0].state[0].item;
-                if (status.state.includes('open')) {
-                    if (time > performanceTimeout * 1000) {
-                        resolve({status: "SLOW", message: status.state});
-                    } else {
-                        resolve({status: "ONLINE", message: status.state});
-                    }
+            try {
+                if (error) {
+                    resolve({status: "OFFLINE", message: error});
                 } else {
-                    resolve({status: "OFFLINE", message: status.state});
+                    const result = report[host].host[0];
+                    const time = parseInt(result.item.endtime) - parseInt(result.item.starttime);
+                    const status = result.ports[0].port[0].state[0].item;
+                    if (status.state.includes('open')) {
+                        if (time > performanceTimeout * 1000) {
+                            resolve({status: "SLOW", message: status.state});
+                        } else {
+                            resolve({status: "ONLINE", message: status.state});
+                        }
+                    } else {
+                        resolve({status: "OFFLINE", message: status.state});
+                    }
                 }
+            } catch (e) {
+                console.error(e);
+                resolve({status: "OFFLINE", message: 'an unexpected error occurred'});
             }
         });
     });

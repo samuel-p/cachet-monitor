@@ -1,0 +1,9 @@
+{
+  "assignees": [
+    "samuel-p"
+  ],
+  "baseBranches": [
+    "master"
+  ],
+  "rangeStrategy": "bump"
+}
