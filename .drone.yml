@@ -7,11 +7,6 @@ platform:
   arch: amd64
 
 steps:
-  - name: build
-    image: node:alpine
-    commands:
-      - npm install
-      - npm run build:ssr
   - name: docker
     image: plugins/docker
     settings:
@@ -39,11 +34,6 @@ platform:
   arch: arm
 
 steps:
-  - name: build
-    image: node:alpine
-    commands:
-      - npm install
-      - npm run build:ssr
   - name: docker
     image: plugins/docker
     settings:
@@ -54,11 +44,12 @@ steps:
         from_secret: USERNAME
       password:
         from_secret: PASSWORD
-    when:
-      branch:
-        - master
-      event:
-        - push
+
+trigger:
+  branch:
+    - master
+  event:
+    - push
 
 ---
 kind: pipeline
@@ -94,3 +85,24 @@ trigger:
     - master
   event:
     - push
+
+---
+kind: pipeline
+type: docker
+name: build-only
+
+platform:
+  os: linux
+  arch: arm
+
+steps:
+  - name: docker
+    image: plugins/docker
+    settings:
+      repo: samuelph/cachet-monitor
+      dry_run: true
+
+trigger:
+  branch:
+    exclude:
+      - master
