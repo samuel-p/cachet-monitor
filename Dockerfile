@@ -1,4 +1,4 @@
-FROM node:14.5.0-alpine
+FROM node:14.6.0-alpine
 
 MAINTAINER mail@sp-codes.de
 
