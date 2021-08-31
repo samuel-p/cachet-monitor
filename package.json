@@ -11,6 +11,6 @@
     "abort-controller": "^3.0.0",
     "libnmap": "^0.4.19",
     "node-cron": "^3.0.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^3.0.0"
   }
 }
